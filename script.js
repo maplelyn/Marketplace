@@ -695,9 +695,12 @@
     const closeModal = document.getElementById('closeModal');
     const favouriteBtn = document.getElementById('favouriteBtn');
     const shareBtn = document.getElementById('shareBtn');
-    const hiddenLinks = document.getElementById('hiddenLinks');
     let overlayItemUuid = null;
     let shareOverlayEl = null;
+
+    function getHiddenLinksContainer() {
+        return document.getElementById('hiddenLinks');
+    }
 
     async function copyTextToClipboard(text) {
         try {
@@ -878,7 +881,8 @@
                 modalDescription.innerHTML = '';
             }
             downloadLinks.innerHTML = '';
-            const itemLinksContainer = hiddenLinks.querySelector(`.item-links[data-uuid="${uuid}"]`);
+            const hiddenLinks = getHiddenLinksContainer();
+            const itemLinksContainer = hiddenLinks?.querySelector(`.item-links[data-uuid="${uuid}"]`);
             if (itemLinksContainer) {
                 itemLinksContainer.querySelectorAll('.download-link').forEach(link => {
                     const clonedLink = link.cloneNode(true);
