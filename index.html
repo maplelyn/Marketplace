@@ -1,227 +1,227 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Marketplace</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="style.css" rel="stylesheet"/>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <title>Marketplace</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-<div class="stars" id="stars"></div>
-<div class="themes-overlay" id="themesOverlay"></div>
-<div class="initial-loader" id="initialLoader">
-<div class="loader-content">
-<i class="fas fa-spinner fa-spin" style="font-size: 2.6rem;"></i>
-<p>@MCF2P</p>
-</div>
-</div>
-<header>
-<h1 id="logo">Marketplace</h1>
-<div class="search-container">
-<div class="input-group">
-<div class="search-wrapper">
-<input id="searchInput" placeholder="Search..." type="text"/>
-<button><i class="fas fa-search"></i></button>
-</div>
-<div class="request-wrapper">
-<input id="linkInput" placeholder="Request..." type="text"/>
-<button id="sendButton"><i class="fas fa-paper-plane"></i></button>
-</div>
-</div>
-</div>
-<div class="category-container">
-<div class="category-buttons">
-<button class="active" data-filter="all"><i class="fas fa-infinity" title="All"></i></button>
-<button data-filter="worlds"><i class="fas fa-globe" title="Worlds"></i></button>
-<button data-filter="addons"><i class="fas fa-puzzle-piece" title="Addons"></i></button>
-<button data-filter="mashups"><i class="fas fa-layer-group" title="Mashups"></i></button>
-<button data-filter="textures"><i class="fas fa-image" title="Textures"></i></button>
-<button data-filter="skins"><i class="fas fa-tshirt" title="Skins"></i></button>
-</div>
-<div class="settings-wrapper">
-<button class="settings-btn" id="settingsBtn">
-<i class="fas fa-sliders-h"></i>
-</button>
-<div class="sort-dropdown" id="sortDropdown">
-<div class="sort-option" data-sort="default"><i class="fas fa-random"></i><span>Default</span></div>
-<div class="sort-option" data-sort="newest"><i class="fas fa-arrow-up"></i><span>Newest</span></div>
-<div class="sort-option" data-sort="oldest"><i class="fas fa-arrow-down"></i><span>Oldest</span></div>
-<div class="sort-option" data-sort="name"><i class="fas fa-sort-alpha-down" id="nameSortIcon"></i><span id="nameSortLabel">Name (A-Z)</span></div>
-<div class="sort-option" data-sort="favourites"><i class="fas fa-heart"></i><span>Favourites</span></div>
-<hr style="border: none; border-top: 1px solid var(--glass-border); margin: 8px 0;"/>
-<div class="sort-option" data-sort="themes"><i class="fas fa-palette"></i><span>Themes</span></div>
-<div class="sort-option" data-sort="information"><i class="fas fa-info-circle"></i><span>Information</span></div>
-</div>
-</div>
-</div>
-</header>
-<div class="themes-panel" id="themesPanel">
-<button class="panel-close-btn" id="closeThemesBtn"><i class="fas fa-times"></i></button>
-<h2><i class="fas fa-palette"></i> Themes</h2>
-<div class="theme-option">
-<label>Background Color</label>
-<input id="themeBgColor" type="color" value="#0f0c29"/>
-</div>
-<div class="theme-option">
-<label>Title Color</label>
-<input id="themeTitleColor" type="color" value="#ffffff"/>
-</div>
-<div class="theme-option">
-<label>Type Color</label>
-<input id="themeTypeColor" type="color" value="#cccccc"/>
-</div>
-<div class="theme-option">
-<label>Description Color</label>
-<input id="themeDescColor" type="color" value="#dddddd"/>
-</div>
-<div class="theme-option">
-<label>Icons Color</label>
-<input id="themeIconsColor" type="color" value="#ffffff"/>
-</div>
-<div class="theme-option">
-<label>Font Style</label>
-<div class="font-style-buttons" id="themeFontStyleButtons">
-<button class="font-style-btn active" data-font-style="rubik" type="button">Default</button>
-<button class="font-style-btn" data-font-style="mcpefont" type="button">Minecraft</button>
-<button class="font-style-btn" data-font-style="pixel" type="button">Pixel</button>
-<button class="font-style-btn" data-font-style="poppins" type="button">Poppins</button>
-<button class="font-style-btn" data-font-style="montserrat" type="button">Montserrat</button>
-<button class="font-style-btn" data-font-style="oswald" type="button">Oswald</button>
-</div>
-</div>
-<div class="theme-actions">
-<button class="theme-apply-btn" id="applyThemeBtn"><i class="fas fa-check"></i> Apply</button>
-<button class="theme-reset-btn" id="resetThemeBtn"><i class="fas fa-undo"></i> Reset</button>
-</div>
-</div>
-<div class="information-section" id="informationSection">
-<button class="panel-close-btn" id="closeInfoBtn"><i class="fas fa-times"></i></button>
-<h2><i class="fas fa-info-circle"></i> Information</h2>
-<div class="social-links">
-<a class="social-icon discord" href="https://discord.gg/yTXf8R7cGb" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
-<a class="social-icon youtube" href="https://www.youtube.com/@Vultir" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
-<a class="social-icon tiktok" href="https://www.tiktok.com/@yashodlc" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
-</div>
-<div class="tutorial-section">
-<h3><i class="fas fa-graduation-cap"></i> Tutorial</h3>
-<a class="download-guide-btn" href="https://xameraman.github.io/All-Mia-Guides/" target="_blank">How To Download</a>
-</div>
-<h3 class="statistics-title"><i class="fas fa-chart-bar"></i> Statistics</h3>
-<div class="statistics-area" id="statisticsArea">
-<div class="stat-row">
-<div class="stat-item">
-<div class="stat-icon"><i class="fas fa-infinity"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statAll">0</span>
-<span class="stat-label">Total</span>
-</div>
-</div>
-<div class="stat-item">
-<div class="stat-icon"><i class="fas fa-cube"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statWorlds">0</span>
-<span class="stat-label">Worlds</span>
-</div>
-</div>
-</div>
-<div class="stat-row">
-<div class="stat-item">
-<div class="stat-icon"><i class="fas fa-puzzle-piece"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statAddons">0</span>
-<span class="stat-label">Addons</span>
-</div>
-</div>
-<div class="stat-item">
-<div class="stat-icon"><i class="fas fa-layer-group"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statMashups">0</span>
-<span class="stat-label">Mashups</span>
-</div>
-</div>
-</div>
-<div class="stat-row">
-<div class="stat-item">
-<div class="stat-icon"><i class="fas fa-image"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statTextures">0</span>
-<span class="stat-label">Textures</span>
-</div>
-</div>
-<div class="stat-item">
-<div class="stat-icon"><i class="fas fa-tshirt"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statSkins">0</span>
-<span class="stat-label">Skins</span>
-</div>
-</div>
-</div>
-<div class="stat-row stat-row-single">
-<div class="stat-item stat-item-wide">
-<div class="stat-icon"><i class="fas fa-heart"></i></div>
-<div class="stat-info">
-<span class="stat-count" id="statFavourites">0</span>
-<span class="stat-label">Favourites</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<main class="grid-container" id="itemContainer"></main>
-<div class="overlay" id="downloadOverlay">
-<div class="download-modal">
-<div class="modal-header">
-<h3 class="modal-title" id="modalTitle">Item Title</h3>
-<div class="modal-actions">
-<button class="close-btn" id="closeModal"><i class="fas fa-times"></i></button>
-</div>
-</div>
-<div class="slider-container" id="modalSliderContainer">
-<div class="slider-track" id="sliderTrack"></div>
-<div class="slider-prev" id="sliderPrev"><i class="fas fa-chevron-left"></i></div>
-<div class="slider-next" id="sliderNext"><i class="fas fa-chevron-right"></i></div>
-<div class="slider-up" id="sliderUp"><i class="fas fa-repeat"></i></div>
-<div class="slider-dots" id="sliderDots"></div>
-<input class="panorama-slider" id="panoramaSlider" max="100" min="0" step="1" type="range" value="0"/>
-</div>
-<div class="modal-meta-row">
-<button aria-label="Favourites" class="favourite-btn" id="favouriteBtn"><i class="fas fa-heart"></i></button>
-<p class="modal-type" id="modalType">Type</p>
-<button aria-label="Share" class="share-btn" id="shareBtn"><i class="fas fa-share-alt"></i></button>
-</div>
-<div class="modal-description" id="modalDescription" style="display: none;"></div>
-<p class="modal-rating" id="modalRating" style="display: none;"><i class="fas fa-star"></i> <span id="modalRatingValue"></span> <span id="modalTotalRatings"></span></p>
-<div class="download-links" id="downloadLinks"></div>
-</div>
-</div>
-<div class="overlay" id="alertOverlay">
-<div class="alert-modal">
-<i class="fas fa-exclamation-circle" style="font-size: 3em; color: #ff6b6b; margin-bottom: 15px;"></i>
-<h3 style="margin-bottom: 10px; font-size: 1.3em;">Invalid Link</h3>
-<p style="color: #ccc; margin-bottom: 20px;">You can only send Minecraft Marketplace links</p>
-<button id="alertCloseBtn" style="padding: 10px 30px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--button-bg); color: var(--text-color); cursor: pointer; font-size: 1em; transition: all 0.3s ease;">OK</button>
-</div>
-</div>
-<div class="overlay" id="successOverlay">
-<div class="success-modal">
-<i class="fas fa-check-circle" style="font-size: 3em; color: #4CAF50; margin-bottom: 15px;"></i>
-<h3 style="margin-bottom: 10px; font-size: 1.3em;">Success!</h3>
-<p style="color: #ccc; margin-bottom: 20px;">Request Sent Successfully!</p>
-<button id="successCloseBtn" style="padding: 10px 30px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--button-bg); color: var(--text-color); cursor: pointer; font-size: 1em; transition: all 0.3s ease;">OK</button>
-</div>
-</div>
-<div class="hidden-links" id="hiddenLinks"></div>
-<footer>©F2P</footer>
-
-
-<script src="script.js"></script>
-<script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
-<script>linkvertise(3046434, {whitelist: ["mir.cr", "gofile.io", "mirrored.to"], blacklist: []});</script></body>
+    <div class="stars" id="stars"></div>
+    <div class="themes-overlay" id="themesOverlay"></div>
+    <div class="initial-loader" id="initialLoader">
+        <div class="loader-content">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2.6rem;"></i>
+            <p>@MCF2P</p>
+        </div>
+    </div>
+    <header>
+        <h1 id="logo">Marketplace</h1>
+        <div class="search-container">
+            <div class="input-group">
+                <div class="search-wrapper">
+                    <input id="searchInput" placeholder="Search..." type="text"/>
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div class="request-wrapper">
+                    <input id="linkInput" placeholder="Request..." type="text"/>
+                    <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="category-container">
+            <div class="category-buttons">
+                <button class="active" data-filter="all"><i class="fas fa-infinity" title="All"></i></button>
+                <button data-filter="worlds"><i class="fas fa-globe" title="Worlds"></i></button>
+                <button data-filter="addons"><i class="fas fa-puzzle-piece" title="Addons"></i></button>
+                <button data-filter="mashups"><i class="fas fa-layer-group" title="Mashups"></i></button>
+                <button data-filter="textures"><i class="fas fa-image" title="Textures"></i></button>
+                <button data-filter="skins"><i class="fas fa-tshirt" title="Skins"></i></button>
+            </div>
+            <div class="settings-wrapper">
+                <button class="settings-btn" id="settingsBtn">
+                    <i class="fas fa-sliders-h"></i>
+                </button>
+                <div class="sort-dropdown" id="sortDropdown">
+                    <div class="sort-option" data-sort="default"><i class="fas fa-random"></i><span>Default</span></div>
+                    <div class="sort-option" data-sort="newest"><i class="fas fa-arrow-up"></i><span>Newest</span></div>
+                    <div class="sort-option" data-sort="oldest"><i class="fas fa-arrow-down"></i><span>Oldest</span></div>
+                    <div class="sort-option" data-sort="name"><i class="fas fa-sort-alpha-down" id="nameSortIcon"></i><span id="nameSortLabel">Name (A-Z)</span></div>
+                    <div class="sort-option" data-sort="favourites"><i class="fas fa-heart"></i><span>Favourites</span></div>
+                    <hr style="border: none; border-top: 1px solid var(--glass-border); margin: 8px 0;"/>
+                    <div class="sort-option" data-sort="themes"><i class="fas fa-palette"></i><span>Themes</span></div>
+                    <div class="sort-option" data-sort="information"><i class="fas fa-info-circle"></i><span>Information</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="themes-panel" id="themesPanel">
+        <button class="panel-close-btn" id="closeThemesBtn"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-palette"></i> Themes</h2>
+        <div class="theme-option">
+            <label>Background Color</label>
+            <input id="themeBgColor" type="color" value="#0f0c29"/>
+        </div>
+        <div class="theme-option">
+            <label>Title Color</label>
+            <input id="themeTitleColor" type="color" value="#ffffff"/>
+        </div>
+        <div class="theme-option">
+            <label>Type Color</label>
+            <input id="themeTypeColor" type="color" value="#cccccc"/>
+        </div>
+        <div class="theme-option">
+            <label>Description Color</label>
+            <input id="themeDescColor" type="color" value="#dddddd"/>
+        </div>
+        <div class="theme-option">
+            <label>Icons Color</label>
+            <input id="themeIconsColor" type="color" value="#ffffff"/>
+        </div>
+        <div class="theme-option">
+            <label>Font Style</label>
+            <div class="font-style-buttons" id="themeFontStyleButtons">
+                <button class="font-style-btn active" data-font-style="rubik" type="button">Default</button>
+                <button class="font-style-btn" data-font-style="mcpefont" type="button">Minecraft</button>
+                <button class="font-style-btn" data-font-style="pixel" type="button">Pixel</button>
+                <button class="font-style-btn" data-font-style="poppins" type="button">Poppins</button>
+                <button class="font-style-btn" data-font-style="montserrat" type="button">Montserrat</button>
+                <button class="font-style-btn" data-font-style="oswald" type="button">Oswald</button>
+            </div>
+        </div>
+        <div class="theme-actions">
+            <button class="theme-apply-btn" id="applyThemeBtn"><i class="fas fa-check"></i> Apply</button>
+            <button class="theme-reset-btn" id="resetThemeBtn"><i class="fas fa-undo"></i> Reset</button>
+        </div>
+    </div>
+    <div class="information-section" id="informationSection">
+        <button class="panel-close-btn" id="closeInfoBtn"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-info-circle"></i> Information</h2>
+        <div class="social-links">
+            <a class="social-icon discord" href="https://discord.gg/yTXf8R7cGb" target="_blank" title="Discord"><i class="fab fa-discord"></i></a>
+            <a class="social-icon youtube" href="https://www.youtube.com/@Vultir" target="_blank" title="YouTube"><i class="fab fa-youtube"></i></a>
+            <a class="social-icon tiktok" href="https://www.tiktok.com/@yashodlc" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <div class="tutorial-section">
+            <h3><i class="fas fa-graduation-cap"></i> Tutorial</h3>
+            <a class="download-guide-btn" href="https://xameraman.github.io/All-Mia-Guides/" target="_blank">How To Download</a>
+        </div>
+        <h3 class="statistics-title"><i class="fas fa-chart-bar"></i> Statistics</h3>
+        <div class="statistics-area" id="statisticsArea">
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-infinity"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statAll">0</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-cube"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statWorlds">0</span>
+                        <span class="stat-label">Worlds</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-puzzle-piece"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statAddons">0</span>
+                        <span class="stat-label">Addons</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statMashups">0</span>
+                        <span class="stat-label">Mashups</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-image"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statTextures">0</span>
+                        <span class="stat-label">Textures</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon"><i class="fas fa-tshirt"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statSkins">0</span>
+                        <span class="stat-label">Skins</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-row stat-row-single">
+                <div class="stat-item stat-item-wide">
+                    <div class="stat-icon"><i class="fas fa-heart"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-count" id="statFavourites">0</span>
+                        <span class="stat-label">Favourites</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <main class="grid-container" id="itemContainer"></main>
+    <div class="overlay" id="downloadOverlay">
+        <div class="download-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Item Title</h3>
+                <div class="modal-actions">
+                    <button class="close-btn" id="closeModal"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="slider-container" id="modalSliderContainer">
+                <div class="slider-track" id="sliderTrack"></div>
+                <div class="slider-prev" id="sliderPrev"><i class="fas fa-chevron-left"></i></div>
+                <div class="slider-next" id="sliderNext"><i class="fas fa-chevron-right"></i></div>
+                <div class="slider-up" id="sliderUp"><i class="fas fa-repeat"></i></div>
+                <div class="slider-dots" id="sliderDots"></div>
+                <input class="panorama-slider" id="panoramaSlider" max="100" min="0" step="1" type="range" value="0"/>
+            </div>
+            <div class="modal-meta-row">
+                <button aria-label="Favourites" class="favourite-btn" id="favouriteBtn"><i class="fas fa-heart"></i></button>
+                <p class="modal-type" id="modalType">Type</p>
+                <button aria-label="Share" class="share-btn" id="shareBtn"><i class="fas fa-share-alt"></i></button>
+            </div>
+            <div class="modal-description" id="modalDescription" style="display: none;"></div>
+            <p class="modal-rating" id="modalRating" style="display: none;"><i class="fas fa-star"></i> <span id="modalRatingValue"></span> <span id="modalTotalRatings"></span></p>
+            <div class="download-links" id="downloadLinks"></div>
+        </div>
+    </div>
+    <div class="overlay" id="alertOverlay">
+        <div class="alert-modal">
+            <i class="fas fa-exclamation-circle" style="font-size: 3em; color: #ff6b6b; margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px; font-size: 1.3em;">Invalid Link</h3>
+            <p style="color: #ccc; margin-bottom: 20px;">You can only send Minecraft Marketplace links</p>
+            <button id="alertCloseBtn" style="padding: 10px 30px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--button-bg); color: var(--text-color); cursor: pointer; font-size: 1em; transition: all 0.3s ease;">OK</button>
+        </div>
+    </div>
+    <div class="overlay" id="successOverlay">
+        <div class="success-modal">
+            <i class="fas fa-check-circle" style="font-size: 3em; color: #4CAF50; margin-bottom: 15px;"></i>
+            <h3 style="margin-bottom: 10px; font-size: 1.3em;">Success!</h3>
+            <p style="color: #ccc; margin-bottom: 20px;">Request Sent Successfully!</p>
+            <button id="successCloseBtn" style="padding: 10px 30px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--button-bg); color: var(--text-color); cursor: pointer; font-size: 1em; transition: all 0.3s ease;">OK</button>
+        </div>
+    </div>
+    <div class="hidden-links" id="hiddenLinks"></div>
+    <footer>©F2P</footer>
+    <script src="https://publisher.linkvertise.com/cdn/linkvertise.js"></script>
+    <script>
+        linkvertise(1354486, { whitelist: ["mir.cr", "mirrored.to", "gofile.io", "mediafire.com", "krakenfiles.com", "dropbox.com", "drive.google.com", "upload.ee", "usersdrive.com"], blacklist: [] });
+    </script>
+    <script src="script.js"></script>
+</body>
 </html>
