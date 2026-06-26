@@ -492,12 +492,15 @@ h1:hover {
     color: var(--text-color);
     font-size: 1.2em;
     cursor: pointer;
-    transition: transform 0.2s ease, color 0.2s ease;
+    transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
     width: 34px;
     height: 34px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+.favourite-btn i {
+    transition: color 0.2s ease;
 }
 .favourite-btn:hover { transform: scale(1.05); }
 .share-btn {
@@ -514,7 +517,11 @@ h1:hover {
     justify-content: center;
 }
 .share-btn:hover { transform: scale(1.05); }
-.favourite-btn.favourited { color: #ff4d4d; }
+.favourite-btn.favourited,
+.favourite-btn.favourited i {
+    color: #ff4d4d !important;
+    text-shadow: 0 0 8px rgba(255, 77, 77, 0.35);
+}
 .close-btn {
     background: transparent;
     border: none;
@@ -744,12 +751,22 @@ h1:hover {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+.link-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .link-icon { font-size: 1.2em; }
 .file-size {
+    margin-left: auto;
+    padding-left: 12px;
     font-size: 0.85em;
     color: #aaa;
     white-space: nowrap;
+    text-align: right;
 }
 .right-group {
     display: flex;
