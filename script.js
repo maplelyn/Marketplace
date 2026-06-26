@@ -203,16 +203,6 @@
             container.appendChild(emptyLink);
             return container;
         }
-        item.links.forEach(link => {
-            const linkEl = document.createElement('a');
-            linkEl.className = 'download-link';
-            linkEl.href = link.url || '#';
-            linkEl.target = '_blank';
-            linkEl.rel = 'noopener noreferrer';
-            linkEl.innerHTML =
-                `<span class="link-text"><i class="fas fa-download"></i> ${escapeHtml(link.type || 'Download')}</span><span class="link-size">${escapeHtml(link.size || '')}</span>`;
-            container.appendChild(linkEl);
-        });
         return container;
     }
 
@@ -235,11 +225,6 @@
         }
         const items = Array.isArray(payload) ? payload : (payload && Array.isArray(payload.items) ? payload.items : []);
         loadDownloadCounts(items);
-        const hiddenLinks = document.getElementById('hiddenLinks');
-        if (hiddenLinks) hiddenLinks.innerHTML = '';
-        itemsData.forEach(item => {
-            if (hiddenLinks) hiddenLinks.appendChild(buildHiddenLinksContainer(item));
-        });
         updateStatistics();
         renderItems();
         setupInfiniteScroll();
@@ -702,6 +687,15 @@
         return document.getElementById('hiddenLinks');
     }
 
+    function getItemTypeLabel(itemData) {
+        if (!itemData) return 'Download';
+        if (itemData.subtitle) return itemData.subtitle;
+        if (itemData.type) return itemData.type;
+        const categoryNames = { worlds: 'World', addons: 'Addon', mashups: 'Mashup', textures: 'Texture', skins: 'Skin' };
+        const category = String(itemData.category || '').toLowerCase();
+        return categoryNames[category] || (itemData.category ? String(itemData.category) : 'Download');
+    }
+
     async function copyTextToClipboard(text) {
         try {
             await navigator.clipboard.writeText(text);
@@ -829,7 +823,13 @@
     function setFavouriteButtonForUuid(uuid) {
         if (!favouriteBtn) return;
         const favs = loadFavourites();
-        favouriteBtn.classList.toggle('favourited', favs.has(uuid));
+        const isFavourited = favs.has(uuid);
+        favouriteBtn.classList.toggle('favourited', isFavourited);
+        favouriteBtn.setAttribute('aria-pressed', String(isFavourited));
+        const icon = favouriteBtn.querySelector('i');
+        if (icon) {
+            icon.style.color = isFavourited ? '#ff4d4d' : '';
+        }
     }
 
     function toggleFavouriteForUuid(uuid) {
@@ -882,8 +882,32 @@
             }
             downloadLinks.innerHTML = '';
             const hiddenLinks = getHiddenLinksContainer();
+            const itemData = itemsData.find(i => String(i.uuid).toLowerCase() === String(uuid).toLowerCase());
+            const itemTypeLabel = getItemTypeLabel(itemData);
+            const itemLinkTypes = Array.isArray(itemData?.links) ? itemData.links : [];
             const itemLinksContainer = hiddenLinks?.querySelector(`.item-links[data-uuid="${uuid}"]`);
-            if (itemLinksContainer) {
+            const htmlLinks = hiddenLinks?.querySelectorAll(`a.hidden-download-link[id^="hiddenLink-${uuid}"]`);
+            if (htmlLinks && htmlLinks.length) {
+                htmlLinks.forEach((link, index) => {
+                    const clonedLink = document.createElement('a');
+                    clonedLink.className = 'download-link';
+                    clonedLink.href = link.getAttribute('href') || '#';
+                    clonedLink.target = '_blank';
+                    clonedLink.rel = 'noopener noreferrer';
+                    const linkTypeLabel = link.getAttribute('data-label')
+                        || itemLinkTypes[index]?.type
+                        || itemLinkTypes[index]?.label
+                        || itemLinkTypes[index]?.file_type
+                        || itemTypeLabel;
+                    const linkSize = link.getAttribute('data-size')
+                        || itemLinkTypes[index]?.size
+                        || itemLinkTypes[index]?.file_size
+                        || '';
+                    clonedLink.innerHTML = `<span class="link-text"><i class="fas fa-download"></i> <span class="link-label">${escapeHtml(linkTypeLabel)}</span></span>${linkSize ? `<span class="file-size">${escapeHtml(linkSize)}</span>` : ''}`;
+                    clonedLink.addEventListener('click', () => incrementDownloadCount(uuid));
+                    downloadLinks.appendChild(clonedLink);
+                });
+            } else if (itemLinksContainer) {
                 itemLinksContainer.querySelectorAll('.download-link').forEach(link => {
                     const clonedLink = link.cloneNode(true);
                     clonedLink.addEventListener('click', () => incrementDownloadCount(uuid));
