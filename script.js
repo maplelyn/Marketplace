@@ -1,5 +1,5 @@
 (function() {
-    const DATABASE_URL = 'https://vgokhrptcvxdzweyyiqc.supabase.co/storage/v1/object/public/mcf2p/database.json';
+    const DATABASE_URL = 'https://v6-coder.github.io/items/database.json';
     const GITHUB_DATA_URL = 'https://v6-coder.github.io/items/database.json';
     const LOCAL_DATA_URL = './database.json';
     const APP_VERSION = '20260704';
@@ -230,7 +230,12 @@
         const loader = document.getElementById('initialLoader');
         const loaderText = loader?.querySelector('p');
         if (loaderText) loaderText.textContent = '@MCF2P';
-        const fallbackUrls = [buildCatalogUrl(DATABASE_URL), buildCatalogUrl(GITHUB_DATA_URL), LOCAL_DATA_URL];
+        const fallbackUrls = [
+            buildCatalogUrl(DATABASE_URL.replace(/\.json$/i, '.json.br')),
+            buildCatalogUrl(DATABASE_URL),
+            buildCatalogUrl(LOCAL_DATA_URL),
+            buildCatalogUrl(`${LOCAL_DATA_URL}.br`),
+        ];
         let payload = null;
         for (const url of fallbackUrls) {
             try {
