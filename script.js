@@ -1,6 +1,5 @@
 (function() {
-    const DATABASE_URL = 'https://v6-coder.github.io/items/database.json';
-    const GITHUB_DATA_URL = 'https://v6-coder.github.io/items/database.json';
+    const DATA_URL = 'https://v6-coder.github.io/items/database.json';
     const LOCAL_DATA_URL = './database.json';
     const APP_VERSION = '20260704';
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1520027002516541531/EimI6_678qAOKrkLGsjSleUGuxpeqt7Aou40NM07VXhKCvYKX2uY0Nh24h-EF0c-tBlF';
@@ -231,8 +230,8 @@
         const loaderText = loader?.querySelector('p');
         if (loaderText) loaderText.textContent = '@MCF2P';
         const fallbackUrls = [
-            buildCatalogUrl(DATABASE_URL.replace(/\.json$/i, '.json.br')),
-            buildCatalogUrl(DATABASE_URL),
+            buildCatalogUrl(DATA_URL.replace(/\.json$/i, '.json.br')),
+            buildCatalogUrl(DATA_URL),
             buildCatalogUrl(LOCAL_DATA_URL),
             buildCatalogUrl(`${LOCAL_DATA_URL}.br`),
         ];
