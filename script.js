@@ -1,5 +1,8 @@
 (function() {
     const DATABASE_URL = 'https://vgokhrptcvxdzweyyiqc.supabase.co/storage/v1/object/public/mcf2p/database.json';
+    const GITHUB_DATA_URL = 'https://v6-coder.github.io/items/database.json';
+    const LOCAL_DATA_URL = './database.json';
+    const APP_VERSION = '20260704';
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1520027002516541531/EimI6_678qAOKrkLGsjSleUGuxpeqt7Aou40NM07VXhKCvYKX2uY0Nh24h-EF0c-tBlF';
     let currentSort = 'default';
     const FAVOURITES_KEY = 'marketplace_favourites';
@@ -47,6 +50,23 @@
     function getHashFromUrl() {
         return window.location.hash ? window.location.hash.slice(1) : null;
     }
+
+    function buildCatalogUrl(url) {
+        const normalized = String(url || '').trim();
+        if (!normalized) return normalized;
+
+        try {
+            const urlObject = new URL(normalized, window.location.href);
+            if (!urlObject.searchParams.has('v')) {
+                urlObject.searchParams.set('v', APP_VERSION);
+            }
+            return urlObject.toString();
+        } catch (error) {
+            const separator = normalized.includes('?') ? '&' : '?';
+            return `${normalized}${separator}v=${APP_VERSION}`;
+        }
+    }
+
     const ITEMS_PER_PAGE = 15;
     let currentPage = 1;
     let allFilteredSortedItems = [];
@@ -210,7 +230,7 @@
         const loader = document.getElementById('initialLoader');
         const loaderText = loader?.querySelector('p');
         if (loaderText) loaderText.textContent = '@MCF2P';
-        const fallbackUrls = [DATABASE_URL, './database.json', 'database.json'];
+        const fallbackUrls = [buildCatalogUrl(DATABASE_URL), buildCatalogUrl(GITHUB_DATA_URL), LOCAL_DATA_URL];
         let payload = null;
         for (const url of fallbackUrls) {
             try {
