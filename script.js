@@ -1,5 +1,5 @@
 (function() {
-    const DATA_URL = 'https://v6-coder.github.io/items/database.json';
+    const DATA_URL = 'https://v6-coder.github.io/data/database.br';
     const LOCAL_DATA_URL = './database.json';
     const APP_VERSION = '20260704';
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1520027002516541531/EimI6_678qAOKrkLGsjSleUGuxpeqt7Aou40NM07VXhKCvYKX2uY0Nh24h-EF0c-tBlF';
