@@ -1,5 +1,6 @@
 (function() {
-    const DATA_URL = 'https://v6-coder.github.io/data/database.br';
+    const DATA_URL_BR = 'https://v6-coder.github.io/data/database.br';
+    const DATA_URL_GZIP = 'https://v6-coder.github.io/data/database.gzip';
     const LOCAL_DATA_URL = './database.json';
     const APP_VERSION = '20260704';
     const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1520027002516541531/EimI6_678qAOKrkLGsjSleUGuxpeqt7Aou40NM07VXhKCvYKX2uY0Nh24h-EF0c-tBlF';
@@ -48,6 +49,47 @@
 
     function getHashFromUrl() {
         return window.location.hash ? window.location.hash.slice(1) : null;
+    }
+
+    function isBrotliCatalogUrl(candidateUrl) {
+        try {
+            const urlObject = new URL(String(candidateUrl), window.location.href);
+            return urlObject.pathname.toLowerCase().endsWith('.br');
+        } catch (error) {
+            return String(candidateUrl).toLowerCase().endsWith('.br');
+        }
+    }
+
+    function isGzipCatalogUrl(candidateUrl) {
+        try {
+            const urlObject = new URL(String(candidateUrl), window.location.href);
+            return urlObject.pathname.toLowerCase().endsWith('.gzip');
+        } catch (error) {
+            return String(candidateUrl).toLowerCase().endsWith('.gzip');
+        }
+    }
+
+    async function parseCatalogPayload(response, candidateUrl) {
+        const contentEncoding = (response.headers.get('content-encoding') || '').toLowerCase();
+        const isBrPayload = contentEncoding.includes('br') || isBrotliCatalogUrl(candidateUrl);
+        const isGzipPayload = contentEncoding.includes('gzip') || isGzipCatalogUrl(candidateUrl);
+
+        if (isBrPayload && typeof DecompressionStream !== 'undefined') {
+            const buffer = await response.arrayBuffer();
+            const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('br'));
+            const text = await new Response(stream).text();
+            return JSON.parse(text);
+        }
+
+        if (isGzipPayload && typeof DecompressionStream !== 'undefined') {
+            const buffer = await response.arrayBuffer();
+            const stream = new Blob([buffer]).stream().pipeThrough(new DecompressionStream('gzip'));
+            const text = await new Response(stream).text();
+            return JSON.parse(text);
+        }
+
+        const text = await response.text();
+        return JSON.parse(text);
     }
 
     function buildCatalogUrl(url) {
@@ -230,17 +272,18 @@
         const loaderText = loader?.querySelector('p');
         if (loaderText) loaderText.textContent = '@MCF2P';
         const fallbackUrls = [
-            buildCatalogUrl(DATA_URL.replace(/\.json$/i, '.json.br')),
-            buildCatalogUrl(DATA_URL),
+            buildCatalogUrl(DATA_URL_BR),
+            buildCatalogUrl(DATA_URL_GZIP),
             buildCatalogUrl(LOCAL_DATA_URL),
             buildCatalogUrl(`${LOCAL_DATA_URL}.br`),
+            buildCatalogUrl(`${LOCAL_DATA_URL}.gzip`),
         ];
         let payload = null;
         for (const url of fallbackUrls) {
             try {
                 const response = await fetch(url, { cache: 'no-store' });
                 if (response.ok) {
-                    payload = await response.json();
+                    payload = await parseCatalogPayload(response, url);
                     break;
                 }
             } catch (error) {
