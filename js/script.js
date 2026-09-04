@@ -1,3 +1,9 @@
+// Redirect to the f2p section if the standalone page has no route yet.
+const currentPath = window.location.pathname;
+if (!window.location.hash) {
+  window.location.replace(currentPath + '#f2p/');
+}
+
 (function() {
   const SUPPRESSED_CONSOLE_PATTERNS = [
     /Permissions policy violation/i,
