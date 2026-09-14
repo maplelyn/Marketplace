@@ -44,12 +44,12 @@ if (!window.location.hash) {
   // The app reads marketplace data directly from the public API. Do not
   // hardcode the total page count;
   // the API should determine the real end of the catalog and stop naturally.
-  const MARKETPLACE_API = 'https://marketplace-cloudflare-d1.pages.dev/api/marketplace';
-  const MARKETPLACE_ITEM_API = 'https://marketplace-cloudflare-d1.pages.dev/api/marketplace/item';
+  const MARKETPLACE_API = 'https://dlcsrc.pages.dev/api/marketplace';
+  const MARKETPLACE_ITEM_API = 'https://dlcsrc.pages.dev/api/marketplace/item';
   const API_PATH_HEADERS = { 'X-Frontend-Path': window.location.pathname || '/' };
   let MARKETPLACE_TOTAL_PAGES = null;
   const MARKETPLACE_PARALLEL_PAGES = 20; // fetch 20 pages in parallel = 480 items per batch
-  const MARKETPLACE_CACHE_KEY = 'marketplace_api_cache_v1';
+  const MARKETPLACE_CACHE_KEY = 'marketplace_api_cache_v2';
   const MARKETPLACE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
   const MARKETPLACE_IDB_NAME = 'marketplace_db';
   const MARKETPLACE_IDB_STORE = 'items_cache';
@@ -59,7 +59,7 @@ if (!window.location.hash) {
   // Use the public keys.json database for item download links. This must always
   // refresh on page load so the app reflects the latest download availability.
   // Do not cache the database in localStorage.
-  const DOWNLOAD_DB_URL = 'https://mcsrc.f2p.workers.dev/api/keys';
+  const DOWNLOAD_DB_URL = 'https://yf2pv10.github.io/tempkeys/api/keys/keys.json';
   const DOWNLOAD_DB_RETRY_ATTEMPTS = 3;
   const TOKEN_URL = 'https://mcsrc.f2p.workers.dev/api/token';
   const WEBHOOK_URL = 'https://mcsrc.f2p.workers.dev/api/webhook';
@@ -3771,13 +3771,18 @@ if (!window.location.hash) {
       throw new Error(`Failed To Load Page = ${page} (${response.statusText || response.status})`);
     }
     const json = await response.json();
-    const items = Array.isArray(json.items) ? json.items : [];
+    const items = (Array.isArray(json.items) ? json.items : []).filter(isRenderableMarketplaceItem);
     const totalFromApi = Number(json.totalPages || json.totalPagesCount || json.total || json.count || 0);
     if (totalFromApi > 0) {
       const computedPages = Math.ceil(totalFromApi / 24);
       MARKETPLACE_TOTAL_PAGES = computedPages > 0 ? computedPages : null;
     }
     return items;
+  }
+
+  function isRenderableMarketplaceItem(item) {
+    if (!item || item.isHidden === true) return false;
+    return normalizeMarketplaceType(item.type) !== 'persona';
   }
 
   /**
