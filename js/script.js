@@ -44,8 +44,8 @@ if (!window.location.hash) {
   // The app reads marketplace data directly from the public API. Do not
   // hardcode the total page count;
   // the API should determine the real end of the catalog and stop naturally.
-  const MARKETPLACE_API = 'https://dlcsrc.pages.dev/api/marketplace';
-  const MARKETPLACE_ITEM_API = 'https://dlcsrc.pages.dev/api/marketplace/item';
+  const MARKETPLACE_API = 'https://v5-mcsrc.github.io/data/api/marketplace';
+  const MARKETPLACE_ITEM_API = 'https://v5-mcsrc.github.io/data/api/marketplace/item';
   const BACKUP_MARKETPLACE_API = 'https://pokes.pages.dev/api/marketplace';
   const BACKUP_MARKETPLACE_ITEM_API = 'https://pokes.pages.dev/api/item';
   const API_PATH_HEADERS = { 'X-Frontend-Path': window.location.pathname || '/' };
@@ -3722,7 +3722,7 @@ if (!window.location.hash) {
 
   function buildCatalogCandidates() {
     return [
-      { url: MARKETPLACE_API, label: 'Marketplace API' },
+      { url: `${MARKETPLACE_API}/page/page-1.json`, label: 'Marketplace API' },
       { url: `${BACKUP_MARKETPLACE_API}?source=mcnet&page=1`, label: 'Pokes Marketplace API Backup' }
     ];
   }
@@ -3771,7 +3771,7 @@ if (!window.location.hash) {
    */
   async function fetchMarketplacePage(page) {
     const candidateUrls = [
-      `${MARKETPLACE_API}/page-${page}.json`,
+      `${MARKETPLACE_API}/page/page-${page}.json`,
       `${BACKUP_MARKETPLACE_API}?source=mcnet&page=${encodeURIComponent(page)}`
     ];
     let lastError = null;
@@ -3809,14 +3809,17 @@ if (!window.location.hash) {
    * Returns a flat array of items.
    */
   async function fetchMarketplacePagesParallel(pages) {
-    const results = await Promise.all(
-      pages.map(p => fetchMarketplacePage(p).catch(err => {
+    const results = [];
+    for (const page of pages) {
+      try {
+        const items = await fetchMarketplacePage(page);
+        results.push(...items);
+      } catch (err) {
         const reason = String(err.message || '').replace(/^Marketplace API page \d+ failed:\s*/i, '');
-        console.warn(reason || `Failed To Load Page = ${p}`);
-        return [];
-      }))
-    );
-    return results.flat();
+        console.warn(reason || `Failed To Load Page = ${page}`);
+      }
+    }
+    return results;
   }
 
   /**
@@ -3982,7 +3985,7 @@ if (!window.location.hash) {
 
   async function getMarketplaceUpstreamFingerprint() {
     const candidateUrls = [
-      `${MARKETPLACE_API}/page-1.json`,
+      `${MARKETPLACE_API}/page/page-1.json`,
       `${BACKUP_MARKETPLACE_API}?source=mcnet&page=1`
     ];
 
