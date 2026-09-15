@@ -46,6 +46,8 @@ if (!window.location.hash) {
   // the API should determine the real end of the catalog and stop naturally.
   const MARKETPLACE_API = 'https://dlcsrc.pages.dev/api/marketplace';
   const MARKETPLACE_ITEM_API = 'https://dlcsrc.pages.dev/api/marketplace/item';
+  const BACKUP_MARKETPLACE_API = 'https://pokes.pages.dev/api/marketplace';
+  const BACKUP_MARKETPLACE_ITEM_API = 'https://pokes.pages.dev/api/item';
   const API_PATH_HEADERS = { 'X-Frontend-Path': window.location.pathname || '/' };
   let MARKETPLACE_TOTAL_PAGES = null;
   const MARKETPLACE_PARALLEL_PAGES = 20; // fetch 20 pages in parallel = 480 items per batch
@@ -3719,7 +3721,10 @@ if (!window.location.hash) {
   }
 
   function buildCatalogCandidates() {
-    return [{ url: MARKETPLACE_API, label: 'Marketplace API' }];
+    return [
+      { url: MARKETPLACE_API, label: 'Marketplace API' },
+      { url: `${BACKUP_MARKETPLACE_API}?source=mcnet&page=1`, label: 'Pokes Marketplace API Backup' }
+    ];
   }
 
   async function fetchCatalogFromCandidates(options = {}) {
@@ -3765,19 +3770,33 @@ if (!window.location.hash) {
    * Returns an array of items (24 per page).
    */
   async function fetchMarketplacePage(page) {
-    const url = `${MARKETPLACE_API}/page-${page}.json`;
-    const response = await fetch(url, { cache: 'no-store' });
-    if (!response.ok) {
-      throw new Error(`Failed To Load Page = ${page} (${response.statusText || response.status})`);
+    const candidateUrls = [
+      `${MARKETPLACE_API}/page-${page}.json`,
+      `${BACKUP_MARKETPLACE_API}?source=mcnet&page=${encodeURIComponent(page)}`
+    ];
+    let lastError = null;
+
+    for (const url of candidateUrls) {
+      try {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Failed To Load Page = ${page} (${response.statusText || response.status})`);
+        }
+        const json = await response.json();
+        const items = (Array.isArray(json.items) ? json.items : []).filter(isRenderableMarketplaceItem);
+        const totalFromApi = Number(json.totalPages || json.totalPagesCount || json.total || json.count || 0);
+        if (totalFromApi > 0) {
+          const computedPages = Math.ceil(totalFromApi / 24);
+          MARKETPLACE_TOTAL_PAGES = computedPages > 0 ? computedPages : null;
+        }
+        return items;
+      } catch (error) {
+        lastError = error;
+        console.warn(`Marketplace page fallback: ${url} failed`, error);
+      }
     }
-    const json = await response.json();
-    const items = (Array.isArray(json.items) ? json.items : []).filter(isRenderableMarketplaceItem);
-    const totalFromApi = Number(json.totalPages || json.totalPagesCount || json.total || json.count || 0);
-    if (totalFromApi > 0) {
-      const computedPages = Math.ceil(totalFromApi / 24);
-      MARKETPLACE_TOTAL_PAGES = computedPages > 0 ? computedPages : null;
-    }
-    return items;
+
+    throw lastError || new Error(`Failed To Load Page = ${page}`);
   }
 
   function isRenderableMarketplaceItem(item) {
@@ -3962,20 +3981,29 @@ if (!window.location.hash) {
   }
 
   async function getMarketplaceUpstreamFingerprint() {
-    try {
-      const response = await fetch(`${MARKETPLACE_API}/page-1.json`, { cache: 'no-store' });
-      if (!response.ok) return null;
-      const json = await response.json();
-      const items = Array.isArray(json.items) ? json.items : [];
-      const total = Number(json.total || json.totalItems || items.length || 0);
-      const sample = items
-        .slice(0, 12)
-        .map(item => String(item.id || item.uuid || item.title || ''))
-        .join('|');
-      return `${total}:${sample}`;
-    } catch (e) {
-      return null;
+    const candidateUrls = [
+      `${MARKETPLACE_API}/page-1.json`,
+      `${BACKUP_MARKETPLACE_API}?source=mcnet&page=1`
+    ];
+
+    for (const url of candidateUrls) {
+      try {
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) continue;
+        const json = await response.json();
+        const items = Array.isArray(json.items) ? json.items : [];
+        const total = Number(json.total || json.totalItems || items.length || 0);
+        const sample = items
+          .slice(0, 12)
+          .map(item => String(item.id || item.uuid || item.title || ''))
+          .join('|');
+        return `${total}:${sample}`;
+      } catch (e) {
+        // try the next source
+      }
     }
+
+    return null;
   }
 
   /**
@@ -4028,25 +4056,33 @@ if (!window.location.hash) {
    */
   async function fetchItemDetail(item) {
     if (item._detailLoaded) return item;
-    try {
-      const url = `${MARKETPLACE_ITEM_API}/${encodeURIComponent(item.uuid)}.json`;
-      const response = await fetch(url, { cache: 'force-cache' });
-      if (!response.ok) {
-        item._detailLoaded = true;
+
+    const candidateUrls = [
+      `${MARKETPLACE_ITEM_API}/${encodeURIComponent(item.uuid)}.json`,
+      `${BACKUP_MARKETPLACE_ITEM_API}?id=${encodeURIComponent(item.uuid)}`
+    ];
+    let lastError = null;
+
+    for (const url of candidateUrls) {
+      try {
+        const response = await fetch(url, { cache: 'force-cache' });
+        if (!response.ok) {
+          continue;
+        }
+        const json = await response.json();
+        const detail = json.item || json;
+        if (detail) {
+          applyMarketplaceDetailData(item, detail);
+        }
+        saveDetailToCache(item.uuid, item);
         return item;
+      } catch (e) {
+        lastError = e;
       }
-      const json = await response.json();
-      const detail = json.item || json;
-      if (detail) {
-        applyMarketplaceDetailData(item, detail);
-      }
-      // Save to localStorage cache so sorting works on next page load
-      // without needing to refetch all details
-      saveDetailToCache(item.uuid, item);
-    } catch (e) {
-      console.warn(`Failed to fetch detail for ${item.uuid}:`, e.message);
-      item._detailLoaded = true;
     }
+
+    console.warn(`Failed to fetch detail for ${item.uuid}:`, lastError?.message || 'unknown');
+    item._detailLoaded = true;
     return item;
   }
 
