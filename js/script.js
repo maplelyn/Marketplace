@@ -45,17 +45,17 @@ if (!window.location.hash) {
   // hardcode the total page count;
   // the API should determine the real end of the catalog and stop naturally.
   const API_BASE = 'https://mcsrc-v1.vercel.app/api';
-  const MARKETPLACE_API = 'https://v5-mcsrc.github.io/br/api/marketplace';
+  const MARKETPLACE_API = 'https://v5-mcsrc.github.io/gz/api/marketplace';
   const MARKETPLACE_ITEM_API = `${MARKETPLACE_API}/item`;
   const API_PATH_HEADERS = { 'X-Frontend-Path': window.location.pathname || '/' };
   let MARKETPLACE_TOTAL_PAGES = null;
   const MARKETPLACE_PARALLEL_PAGES = 20; // fetch 20 pages in parallel = 480 items per batch
-  const MARKETPLACE_CACHE_KEY = 'marketplace_api_cache_v5';
+  const MARKETPLACE_CACHE_KEY = 'marketplace_api_cache_v4';
   const MARKETPLACE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
   const MARKETPLACE_IDB_NAME = 'marketplace_db';
   const MARKETPLACE_IDB_STORE = 'items_cache';
   const MARKETPLACE_IDB_KEY = 'all_items';
-  const MARKETPLACE_SYNC_KEY = 'marketplace_upstream_fingerprint_v5';
+  const MARKETPLACE_SYNC_KEY = 'marketplace_upstream_fingerprint_v4';
 
   // Use the public keys.json database for item download links. This must always
   // refresh on page load so the app reflects the latest download availability.
@@ -3656,20 +3656,6 @@ if (!window.location.hash) {
     }
   }
 
-  let brotliDecoderPromise = null;
-
-  function loadBrotliDecoder() {
-    if (!brotliDecoderPromise) {
-      brotliDecoderPromise = import('https://unpkg.com/brotli-wasm@3.0.1/index.web.js?module')
-        .then(module => module.default)
-        .catch(error => {
-          brotliDecoderPromise = null;
-          throw new Error(`Failed to load Brotli decoder: ${error.message}`);
-        });
-    }
-    return brotliDecoderPromise;
-  }
-
   async function parseCatalogPayload(response, candidateUrl) {
     const contentEncoding = (response.headers.get('content-encoding') || '').toLowerCase();
     const isBrPayload = contentEncoding.includes('br') || isBrotliCatalogUrl(candidateUrl);
@@ -3696,12 +3682,10 @@ if (!window.location.hash) {
     }
 
     if (isBrPayload) {
-      let text = await tryStreamDecode('br');
-      if (text == null) {
-        const brotli = await loadBrotliDecoder();
-        text = new TextDecoder('utf-8').decode(brotli.decompress(new Uint8Array(buffer)));
+      const text = await tryStreamDecode('br');
+      if (text != null) {
+        return JSON.parse(text);
       }
-      return JSON.parse(text);
     }
 
     if (isGzipPayload) {
@@ -3717,7 +3701,7 @@ if (!window.location.hash) {
 
   function buildCatalogCandidates() {
     return [
-      { url: `${MARKETPLACE_API}/page/page-1.br`, label: 'Marketplace API' }
+      { url: `${MARKETPLACE_API}/page/page-1.gz`, label: 'Marketplace API' }
     ];
   }
 
@@ -3765,7 +3749,7 @@ if (!window.location.hash) {
    */
   async function fetchMarketplacePage(page) {
     const candidateUrls = [
-      `${MARKETPLACE_API}/page/page-${page}.br`
+      `${MARKETPLACE_API}/page/page-${page}.gz`
     ];
     let lastError = null;
 
@@ -3988,7 +3972,7 @@ if (!window.location.hash) {
 
   async function getMarketplaceUpstreamFingerprint() {
     const candidateUrls = [
-      `${MARKETPLACE_API}/page/page-1.br`
+      `${MARKETPLACE_API}/page/page-1.gz`
     ];
 
     for (const url of candidateUrls) {
@@ -4063,7 +4047,7 @@ if (!window.location.hash) {
     if (item._detailLoaded) return item;
 
     const candidateUrls = [
-      `${MARKETPLACE_ITEM_API}/${encodeURIComponent(item.uuid)}.br`
+      `${MARKETPLACE_ITEM_API}/${encodeURIComponent(item.uuid)}.gz`
     ];
     let lastError = null;
 
