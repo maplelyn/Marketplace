@@ -44,7 +44,7 @@ if (!window.location.hash) {
   // The app reads marketplace data directly from the public API. Do not
   // hardcode the total page count;
   // the API should determine the real end of the catalog and stop naturally.
-  const API_BASE = 'https://mcsrc-v1.vercel.app/api';
+  const API_BASE = 'https://mcsrc.vercel.app/api';
   const MARKETPLACE_API = 'https://v5-mcsrc.github.io/gz/api/marketplace';
   const MARKETPLACE_ITEM_API = `${MARKETPLACE_API}/item`;
   const API_PATH_HEADERS = { 'X-Frontend-Path': window.location.pathname || '/' };
@@ -57,10 +57,10 @@ if (!window.location.hash) {
   const MARKETPLACE_IDB_KEY = 'all_items';
   const MARKETPLACE_SYNC_KEY = 'marketplace_upstream_fingerprint_v4';
 
-  // Use the public keys.json database for item download links. This must always
-  // refresh on page load so the app reflects the latest download availability.
+  // Use the API's gzip-compressed keys database for item download links. This
+  // must always refresh on page load so the app reflects current availability.
   // Do not cache the database in localStorage.
-  const DOWNLOAD_DB_URL = 'https://yf2pv10.github.io/tempkeys/api/keys/keys.json';
+  const DOWNLOAD_DB_URL = `${API_BASE}/keys`;
   const DOWNLOAD_DB_RETRY_ATTEMPTS = 3;
   const WEBHOOK_URL = `${API_BASE}/webhook`;
   const PROTECTED_ACTION_COOLDOWN_MS = 5000;
@@ -98,7 +98,7 @@ if (!window.location.hash) {
     mashups: 'Mashup'
   };
 
-  // downloadDb is a Map<uuid, dbEntry> built from keys.json
+  // downloadDb is a Map<uuid, dbEntry> built from the keys database
   let downloadDb = new Map();
   let downloadDbLoaded = false;
 
@@ -143,7 +143,7 @@ if (!window.location.hash) {
   let currentCreatorFilter = null;
   const externalLinkData = {
     minecraft: {
-      href: 'https://www.youtube.com/@Vultir',
+      href: 'https://www.youtube.com/@yashodlc',
       icon: 'fas fa-cube',
       label: 'Minecraft',
       className: 'settings-menu-btn placeholder-btn'
@@ -2034,7 +2034,7 @@ if (!window.location.hash) {
   function openDownloadPickerForUuid(uuid, index) {
     const dbEntry = downloadDb.get(String(uuid).toLowerCase());
     
-    // Get link data from keys.json (if available)
+    // Get link data from the keys database (if available)
     const linkvertiseLinks = dbEntry && Array.isArray(dbEntry.linkvertise_links) ? dbEntry.linkvertise_links : [];
     const workInkLinks = dbEntry && Array.isArray(dbEntry.work_ink_links) ? dbEntry.work_ink_links : (dbEntry && Array.isArray(dbEntry['work.ink_links']) ? dbEntry['work.ink_links'] : []);
     const lootlabsLinks = dbEntry && Array.isArray(dbEntry.lootlabs_links) ? dbEntry.lootlabs_links : [];
@@ -2054,7 +2054,7 @@ if (!window.location.hash) {
       return;
     }
     
-    // Use keys.json link for title/size info (only if available)
+    // Use the keys database link for title/size info (only if available)
     const linkForInfo = linkvertiseLinks[index] || workInkLinks[index] || lootlabsLinks[index];
     const item = itemsData.find(candidate => String(candidate.uuid).toLowerCase() === String(uuid).toLowerCase());
 
@@ -2127,11 +2127,11 @@ if (!window.location.hash) {
     }
 
     // Linkvertise (index 2)
-    // Priority: HTML hidden link (PRIMARY) -> keys.json fallback (FALLBACK)
+    // Priority: HTML hidden link (PRIMARY) -> keys database fallback (FALLBACK)
     const linkvertiseBtn = options[2];
     const linkvertiseLink = linkvertiseLinks[index];
     const linkvertiseFallbackUrl = linkvertiseLink ? linkvertiseLink.url : '';
-    // Use HTML hidden link as primary, fall back to keys.json if not available
+    // Use HTML hidden link as primary, fall back to the keys database if unavailable
     const linkvertiseUrl = hiddenLinkUrl || linkvertiseFallbackUrl;
     if (linkvertiseBtn) {
       if (isValidUrl(linkvertiseUrl)) {
@@ -3656,10 +3656,10 @@ if (!window.location.hash) {
     }
   }
 
-  async function parseCatalogPayload(response, candidateUrl) {
+  async function parseCatalogPayload(response, candidateUrl, options = {}) {
     const contentEncoding = (response.headers.get('content-encoding') || '').toLowerCase();
     const isBrPayload = contentEncoding.includes('br') || isBrotliCatalogUrl(candidateUrl);
-    const isGzipPayload = contentEncoding.includes('gzip') || isGzipCatalogUrl(candidateUrl);
+    const isGzipPayload = options.forceGzip || contentEncoding.includes('gzip') || isGzipCatalogUrl(candidateUrl);
     const isZstdPayload = contentEncoding.includes('zstd') || contentEncoding.includes('zstandard') || contentEncoding.includes('x-zstd') || isZstdCatalogUrl(candidateUrl);
     const buffer = await response.arrayBuffer();
 
@@ -4367,7 +4367,7 @@ if (!window.location.hash) {
   }
 
   /**
-   * Load the public keys.json database fresh on every page load.
+   * Load the API's gzip-compressed keys database fresh on every page load.
    * Only the live source URL is used; there is no fallback or cached copy.
    */
   async function loadDownloadDatabase() {
@@ -4389,7 +4389,7 @@ if (!window.location.hash) {
           redirect: 'follow',
           signal: controller.signal,
           headers: {
-            Accept: 'application/json'
+            Accept: 'application/gzip, application/json'
           }
         });
 
@@ -4397,7 +4397,7 @@ if (!window.location.hash) {
           throw new Error(`HTTP ${response.status}`);
         }
 
-        const data = await response.json();
+        const data = await parseCatalogPayload(response, DOWNLOAD_DB_URL, { forceGzip: true });
         const entries = Array.isArray(data) ? data : (data.items || []);
         const map = new Map();
         for (const entry of entries) {
@@ -4469,7 +4469,7 @@ if (!window.location.hash) {
         setLoaderHelperText('Fetching Data');
       }
 
-      // Load the public keys.json database before the marketplace data so item
+      // Load the keys database before the marketplace data so item
       // download links resolve correctly and do not fall back to the request flow.
       await loadDownloadDatabase().catch(err => {
         console.warn('Download database failed to load (non-fatal):', err);
@@ -5164,7 +5164,7 @@ if (!window.location.hash) {
     bottomModsBtn?.addEventListener('click', () => {
       document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
       bottomModsBtn.classList.add('active');
-      window.open('https://www.youtube.com/@Vultir', '_blank', 'noopener noreferrer');
+      window.open('https://www.youtube.com/@yashodlc', '_blank', 'noopener noreferrer');
     });
 
     bottomSettingsBtn?.addEventListener('click', () => {
