@@ -57,10 +57,10 @@ if (!window.location.hash) {
   const MARKETPLACE_IDB_KEY = 'all_items';
   const MARKETPLACE_SYNC_KEY = 'marketplace_upstream_fingerprint_v4';
 
-  // Use the API's gzip-compressed keys database for item download links. This
+  // Use the public gzip-compressed keys database for item download links. This
   // must always refresh on page load so the app reflects current availability.
   // Do not cache the database in localStorage.
-  const DOWNLOAD_DB_URL = `${API_BASE}/keys`;
+  const DOWNLOAD_DB_URL = 'https://yf2pv10.github.io/Web-API/api/keys/keys.gz';
   const DOWNLOAD_DB_RETRY_ATTEMPTS = 3;
   const WEBHOOK_URL = `${API_BASE}/webhook`;
   const PROTECTED_ACTION_COOLDOWN_MS = 5000;
